@@ -4,6 +4,8 @@ answers/*
 !answers/.gitkeep
 !answers/*.example.json
 output/*
+output/kickstart/*.ks
+output/isos/*.iso
 !output/isos/.gitkeep
 !output/kickstarts/.gitkeep
 *.iso
