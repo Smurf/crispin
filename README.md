@@ -27,6 +27,7 @@ $ cat output/kickstarts/test-kickstart.ks
 
 - [ ] Verify example kickstart generated works
 - [ ] Implement proper logging
+- [ ] Implement generation of blank answer files based on provided meta-template
 - [ ] Work to generate ISOs
 - [ ] Work to Host ISOs
 - [ ] Create REST API to dynamically generate kickstarts and ISOs
