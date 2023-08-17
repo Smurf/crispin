@@ -1,0 +1,11 @@
+kickstarts/*
+!kickstarts/.gitkeep
+answers/*
+!answers/.gitkeep
+!answers/*.example.json
+output/*
+!output/isos/.gitkeep
+!output/kickstarts/.gitkeep
+*.iso
+.venv
+secrets/*
