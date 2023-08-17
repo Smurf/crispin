@@ -29,4 +29,4 @@ $ cat output/kickstarts/test-kickstart.ks
 - [ ] Implement proper logging
 - [ ] Work to generate ISOs
 - [ ] Work to Host ISOs
-- [ ] Create API to dynamically generate kickstarts and ISOs
+- [ ] Create REST API to dynamically generate kickstarts and ISOs
