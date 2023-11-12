@@ -19,7 +19,7 @@ $ ./install.sh
 Once installed a meta-template and answers file must be created. This repository has a sample meta-template and answers file.
 
 ```
-$ ./crispin.py -t meta-templates/f38-minimal.json -a answers/answers.example.json -n test-kickstart
+$ ./crispin.py -t recipes/f38-minimal.json -a answers/answers.example.json -n test-kickstart
 $ cat output/kickstarts/test-kickstart.ks
 ```
 
