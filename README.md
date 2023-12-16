@@ -80,7 +80,7 @@ A set of answers, recipes, and templates can be considered a **cookbook**. Each 
 
 ### Recipes
 
-Recipes are a JSON file. The recipe reflects the folder structure of the `template-dir`. The files in the directories are Jinja2 templates.
+Recipes are a JSON file. The recipe reflects the folder structure of the `template-dir`. The files in the directories are Jinja2 templates. **These files are concatinated in the order that they are listed.**
 
 > **NOTE:** This `template-dir` can be defined at  usage time. See [usage](#Usage) for details. This is **not recommended**.
 
