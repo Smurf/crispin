@@ -37,7 +37,7 @@ options:
 
 #### Generate a blank answers file
 
-> **NOTE:** These examples are using the [crispin-recipes](https://github.com/Smurf/crispin-recipes) repository as an example.
+> **NOTE:** These examples are using the [crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) repository as an example.
 
 crispin can generate a blank answers file for you. For more information on what an answers file is see the [answers file](#answers_file) section for more information.
 ```
@@ -46,7 +46,7 @@ crispin -r fedora/recipes/f38-minimal.json -n my-answers -g
 
 #### Generate a kickstart file
 
-> **NOTE:** These examples are using the [crispin-recipes](https://github.com/Smurf/crispin-recipes) repository as an example.
+> **NOTE:** These examples are using the [crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) repository as an example.
 
 ```
 crispin -r fedora/recipes/f38-minimal.json -n f38 -a fedora/answers/answers.example.json
@@ -94,7 +94,7 @@ Recipes are a JSON file. The recipe reflects the folder structure of the `templa
     }    
 }
 ```
-[crispin-recipes](https://github.com/Smurf/crispin-recipes) is under active development and contains an example recipe for my own Fedora 38 install.
+[crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) is under active development and contains an example recipe for my own Fedora 38 install.
 
 ### Answers File
 
