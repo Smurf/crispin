@@ -39,7 +39,7 @@ options:
 
 > **NOTE:** These examples are using the [crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) repository as an example.
 
-crispin can generate a blank answers file for you. For more information on what an answers file is see the [answers file](#answers_file) section for more information.
+crispin can generate a blank answers file for you. For more information on what an answers file is see the [answers file](#answers-file) section for more information.
 ```
 crispin -r fedora/recipes/f38-minimal.json -n my-answers -g
 ```
