@@ -11,3 +11,6 @@ output/isos/*.iso
 *.iso
 .venv
 secrets/*
+dist
+build
+*.egg-info

@@ -1,8 +1,0 @@
-{
-    "hostname":"somehostname",
-    "rootpw_sha256": "somehash",
-    "luks_key": "somepassword",
-    "root_ssh_keys": [ "ssh-rsa AAAAB3.....eBqDhmMjjlc2qtPXfspFlMjpprEAPvO7GSYhsZ+255/yLF0SIf+z me@example.com", "ssh-rsa AAAAB3.....eBqDhmMjjlc2qtPXfspFlMjpprEAPvO7GSYhsZ+255/yLF0SIf+z me2@example.com" ],
-    "ansible_repo": "https://github.com/Smurf/fedora-workstation.git",
-    "branch":"f-38-minimal-release"
-}
