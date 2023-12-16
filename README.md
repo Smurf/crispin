@@ -100,7 +100,7 @@ Recipes are a JSON file. The recipe reflects the folder structure of the `templa
 
 The answers file contains the variables to fill in the Jinja2 templates listed in the recipe.
 
-Blank answer files [can be automatically generated](#creating_a_blank_answers_file) and it is highly recommended to do so.
+Blank answer files [can be automatically generated](#generate-a-blank-answers-file) and it is highly recommended to do so.
 
 ```
 {
