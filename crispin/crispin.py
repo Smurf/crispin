@@ -2,8 +2,8 @@
 
 import argparse, json, logging, sys
 from pathlib import Path
-import crypt
 from jinja2 import Environment, Undefined
+
 
 # https://stackoverflow.com/a/77311286
 def create_collector():
@@ -80,10 +80,6 @@ def write_file(file_data: str, output_path: str, file_name: str):
         exit(1)
 
 
-def hash_pass(pass_str):
-    return crypt.crypt(pass_str, crypt.mksalt(crypt.METHOD_SHA256))
-
-
 def generate_template(recipe, template_path):
     logger = logging.getLogger(__name__)
 
@@ -92,7 +88,9 @@ def generate_template(recipe, template_path):
             logger.info(f"Opened recipe {recipe}.")
             template = fh.read().strip()
             recipe_json = json.loads(template)
-            logger.debug(f"Recipe loaded as json:\n {json.dumps(recipe_json, indent=2)}")
+            logger.debug(
+                f"Recipe loaded as json:\n {json.dumps(recipe_json, indent=2)}"
+            )
     except FileNotFoundError as e:
         logger.error(f"!!! Could not read {recipe}: {e}")
         exit(1)
@@ -110,7 +108,9 @@ def generate_template(recipe, template_path):
     ingredients = recipe_json["recipe"]
     logger.debug(f"Templates found:\n {json.dumps(ingredients, indent=2)}")
     for template_directory in ingredients:
-        logger.info(f"Starting {template_directory} scan in {template_path / template_directory}.")
+        logger.info(
+            f"Starting {template_directory} scan in {template_path / template_directory}."
+        )
         for template in ingredients[template_directory]:
             path = template_path / template_directory / template
             logger.debug(f"Found template at {path}")
@@ -145,16 +145,17 @@ def generate_empty_answers(generated_template: str):
 
     return json.dumps(ret_dict, indent=2)
 
+
 def set_log_level(logging_level):
     # For some reason setting the level in basicConfig fails?
     logging.getLogger(__name__).level = logging_level
 
     logging.basicConfig(
-            level=logging_level,
-            format="%(asctime)s - %(levelname)s - %(message)s",
-            handlers=[logging.StreamHandler(stream=sys.stdout)]
-        )
-    
+        level=logging_level,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(stream=sys.stdout)],
+    )
+
 
 def main():
     base_path = Path().cwd()
@@ -212,38 +213,42 @@ def main():
         action="store_true",
         help="(Optional) Enable debug logging.",
         default=False,
-    ) 
+    )
     if len(sys.argv) < 2:
         parser.print_help()
         exit(1)
 
     args = parser.parse_args()
-    
+
     match args.verbose:
         case True:
             set_log_level(logging.INFO)
         case False:
             set_log_level(logging.ERROR)
-    
+
     match args.debug:
         case True:
             set_log_level(logging.DEBUG)
 
     logger = logging.getLogger(__name__)
-    
+
     match args.template_dir:
         case None:
             template_path = Path(args.recipe).parents[1] / "templates"
         case _:
-            logger.info("Not using a cookbook! Tread with caution. See crispin README for details.")
+            logger.info(
+                "Not using a cookbook! Tread with caution. See crispin README for details."
+            )
             template_path = Path(args.template_path)
-    
+
     ks_template = generate_template(args.recipe, template_path)
-    
+
     match args.generate_answers:
         case True:
             generated_answers = generate_empty_answers(ks_template)
-            abs_path = write_file(generated_answers, args.output_dir, args.name + ".json")
+            abs_path = write_file(
+                generated_answers, args.output_dir, args.name + ".json"
+            )
             logger.info(f"Wrote answers for recipe {args.recipe} to {abs_path}.")
             print(f"Wrote answers for recipe {args.recipe} to {abs_path}.")
         case _:
@@ -251,6 +256,7 @@ def main():
             abs_path = write_file(generated_ks, args.output_dir, args.name + ".ks")
             logger.info(f"Wrote the kickstart for recipe {args.recipe} to {abs_path}.")
             print(f"Wrote the kickstart for recipe {args.recipe} to {abs_path}.")
+
 
 if __name__ == "__main__":
     main()
