@@ -16,7 +16,7 @@ $ ./rebuild.sh
 
 ## Usage:
 ```
-usage: crispin [-h] -r RECIPE -n NAME [-g | -a ANSWERS] [-o OUTPUT_DIR] [-t TEMPLATE_DIR] [-v]
+usage: crispin [-h] -r RECIPE -n NAME [-g | -a ANSWERS] [-o OUTPUT_DIR] [-t TEMPLATE_DIR] [-v] [-vv]
 
 options:
   -h, --help            show this help message and exit
@@ -33,6 +33,7 @@ options:
   -t TEMPLATE_DIR, --template-dir TEMPLATE_DIR
                         (Optional) Directory holding the templates specified in the recipe.
   -v, --verbose         (Optional) Enable verbose logging.
+  -vv, --debug          (Optional) Enable debug logging.
 ```
 
 #### Generate a blank answers file
