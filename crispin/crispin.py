@@ -3,7 +3,7 @@
 import argparse, json, logging, sys
 from pathlib import Path
 from jinja2 import Environment, Undefined
-
+from typing import Dict
 
 # https://stackoverflow.com/a/77311286
 def create_collector():
@@ -31,7 +31,6 @@ def find_all_vars(template_content):
     env = Environment(undefined=undefined_cls)
     tpl = env.from_string(template_content)
     tpl.render({})  # empty so all variables are undefined
-
     return vars
 
 
@@ -120,20 +119,32 @@ def generate_template(recipe, template_path):
     return master_template
 
 
+def check_answers(generated:Dict[str,str], supplied:Dict[str,str]):
+    
+    missing = []
+    for g_ans in generated:
+        if(g_ans not in supplied):
+            missing.append(g_ans)
+        
+    if len(missing) > 0:
+        raise ValueError(f"Answers file is missing values for: {missing}.")
+
 def generate_kickstart(generated_template: str, answers_file: str):
     logger = logging.getLogger(__name__)
     env = Environment()
 
     ks_template = env.from_string(generated_template)
 
+    generated_answers = json.loads(generate_empty_answers(generated_template))
     with open(answers_file, "r") as fh:
-        answers_dict = json.loads(fh.read())
-
+        user_answers = json.loads(fh.read())
     try:
-        ks_render = ks_template.render(answers_dict)
+        check_answers(generated_answers, user_answers)
+        ks_render = ks_template.render(user_answers)
         return ks_render
     except Exception as e:
-        logger.error(f"!!! Unable to render file due to {e}")
+        logger.error(f"!!! Unable to render file !!!")
+        logger.error(f"{e=}")
         exit(1)
 
 
@@ -162,10 +173,18 @@ def main():
 
     parser = argparse.ArgumentParser()
     # Required arguments
-    parser.add_argument(
+    subparser = parser.add_subparsers(
+        help="Choose a command: generate or serve.", dest="command"
+    )
+    serve_parser = subparser.add_parser("serve", help="Start the Crispin API server")
+
+    generate_parser = subparser.add_parser(
+        "generate", help="Set options for generating answers, kickstarts, and ISOs."
+    )
+    generate_parser.add_argument(
         "-r", "--recipe", type=str, help="The path of the chosen recipe.", required=True
     )
-    parser.add_argument(
+    generate_parser.add_argument(
         "-n",
         "--name",
         type=str,
@@ -174,7 +193,7 @@ def main():
     )
 
     # If answers are being generated answers should not be supplied
-    arg_group = parser.add_mutually_exclusive_group()
+    arg_group = generate_parser.add_mutually_exclusive_group()
     arg_group.add_argument(
         "-g",
         "--generate-answers",
@@ -186,14 +205,14 @@ def main():
     )
 
     # Optional arguments
-    parser.add_argument(
+    generate_parser.add_argument(
         "-o",
         "--output-dir",
         type=str,
         help="(Optional default: $PWD) The output dir. If this directory does not exist an attempt to create it is made.",
         default=base_path,
     )
-    parser.add_argument(
+    generate_parser.add_argument(
         "-t",
         "--template-dir",
         type=str,
@@ -217,9 +236,11 @@ def main():
     if len(sys.argv) < 2:
         parser.print_help()
         exit(1)
+    if len(sys.argv) == 2:
+        parser.print_help()
+        exit(1)
 
     args = parser.parse_args()
-
     match args.verbose:
         case True:
             set_log_level(logging.INFO)
