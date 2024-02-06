@@ -80,6 +80,7 @@ def write_file(file_data: str, output_path: str, file_name: str):
 
 
 def generate_template(recipe, template_path):
+    global ks_logging
     logger = logging.getLogger(__name__)
 
     try:
@@ -112,9 +113,18 @@ def generate_template(recipe, template_path):
         )
         for template in ingredients[template_directory]:
             path = template_path / template_directory / template
-            logger.debug(f"Found template at {path}")
-            master_template += read_template(path)
-            master_template += "\n"
+            logger.debug(f"Searching for {template} at {path}")
+            current_template = read_template(path)
+            if(ks_logging):
+                split_template = current_template.splitlines()
+                for line in split_template:
+                    if(line.startswith("%pre") or line.startswith("%post")):
+                        line += f" --log=/tmp/crispin-{template}"
+                    master_template += line+"\n"
+                master_template += "\n"
+            else:
+                master_template += current_template
+                master_template += "\n"
 
     return master_template
 
@@ -169,8 +179,9 @@ def set_log_level(logging_level):
 
 
 def main():
+    global ks_logging
     base_path = Path().cwd()
-
+    ks_logging = False
     parser = argparse.ArgumentParser()
     # Required arguments
     subparser = parser.add_subparsers(
@@ -191,7 +202,13 @@ def main():
         help="Name of the generated kickstart or answer file.",
         required=True,
     )
-
+    generate_parser.add_argument(
+        "-l",
+        "--logging",
+        action="store_true",
+        help="(Optional) Enables logging in the kickstarted machine's /tmp/ directory. All pre and post scripts will log to /tmp/.",
+        default=False,
+    )
     # If answers are being generated answers should not be supplied
     arg_group = generate_parser.add_mutually_exclusive_group()
     arg_group.add_argument(
@@ -233,6 +250,7 @@ def main():
         help="(Optional) Enable debug logging.",
         default=False,
     )
+    
     if len(sys.argv) < 2:
         parser.print_help()
         exit(1)
@@ -250,7 +268,10 @@ def main():
     match args.debug:
         case True:
             set_log_level(logging.DEBUG)
-
+    
+    match args.logging:
+        case True:
+            ks_logging = True
     logger = logging.getLogger(__name__)
 
     match args.template_dir:
