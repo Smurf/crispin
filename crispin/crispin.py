@@ -236,6 +236,7 @@ def main():
         help="(Optional) Directory holding the templates specified in the recipe.",
         default=None,
     )
+
     parser.add_argument(
         "-v",
         "--verbose",
@@ -250,12 +251,20 @@ def main():
         help="(Optional) Enable debug logging.",
         default=False,
     )
+
+    # Check for help printing
     if len(sys.argv) < 2:
         parser.print_help()
         exit(1)
     if len(sys.argv) == 2 and sys.argv[1] == 'generate':
         generate_parser.print_help()
         exit(1)
+    elif len(sys.argv) == 2 and sys.argv[1] == 'serve':
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("This feature is not implemented yet. Check back later.")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        serve_parser.print_help()
+        sys.exit(1)
 
     args = parser.parse_args()
     match args.verbose:
