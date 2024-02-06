@@ -1,11 +1,11 @@
 # crispin
 
-> **NOTE:** This project is in very eary alpha. Some of the features do not work yet.
+> **NOTE:** This project is in very eary alpha. None of this is stable and should never be used by any sane person.
 
 Crispin is an easy to use meta-template engine for creating kickstarts that can be used to automate the install of RHEL and RHEL-alike Linux distributions.
 
 
-## Install
+# Install
 
 ```
 $ ./devenv.sh
@@ -14,15 +14,28 @@ $ ./rebuild.sh
 # If you wish to install to your user python bin run rebuild.sh outside of the venv created by devenv.sh
 ```
 
-## Usage:
+# Usage:
+
+Crispin has two modes: generate and serve.
+
+> **NOTE:** For a high level overview of crispin and the terminology used here see the [How it works](#how-it-works) section.
+
+## Generate:
+
+Generate can create both kickstarts from recipes and answer files from recipes.
+
+
 ```
-usage: crispin [-h] -r RECIPE -n NAME [-g | -a ANSWERS] [-o OUTPUT_DIR] [-t TEMPLATE_DIR] [-v] [-vv]
+$ crispin generate
+usage: crispin generate [-h] -r RECIPE -n NAME [-l] [-g | -a ANSWERS] [-o OUTPUT_DIR] [-t TEMPLATE_DIR]
 
 options:
   -h, --help            show this help message and exit
   -r RECIPE, --recipe RECIPE
                         The path of the chosen recipe.
   -n NAME, --name NAME  Name of the generated kickstart or answer file.
+  -l, --logging         (Optional) Enables logging in the kickstarted machine's /tmp/ directory. All pre and post
+                        scripts will log to /tmp/.
   -g, --generate-answers
                         Generate a blank answer file for the given recipe
   -a ANSWERS, --answers ANSWERS
@@ -31,12 +44,9 @@ options:
                         (Optional default: $PWD) The output dir. If this directory does not exist an attempt to
                         create it is made.
   -t TEMPLATE_DIR, --template-dir TEMPLATE_DIR
-                        (Optional) Directory holding the templates specified in the recipe.
-  -v, --verbose         (Optional) Enable verbose logging.
-  -vv, --debug          (Optional) Enable debug logging.
 ```
 
-#### Generate a blank answers file
+### Generate a blank answers file
 
 > **NOTE:** These examples are using the [crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) repository as an example.
 
@@ -45,22 +55,46 @@ crispin can generate a blank answers file for you. For more information on what 
 crispin -r fedora/recipes/f38-minimal.json -n my-answers -g
 ```
 
-#### Generate a kickstart file
+### Generate a kickstart file
 
 > **NOTE:** These examples are using the [crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) repository as an example.
 
 ```
-crispin -r fedora/recipes/f38-minimal.json -n f38 -a fedora/answers/answers.example.json
+crispin -r fedora/recipes/f38-minimal.json -n f38-my-answers -a my-answers.json
 ```
 
-## How it works
+## Serve
+
+Serve is not implemented yet. This is a v1.0.0 goal.
+
+## Debu
+
+Crispin has a verbose and debug mode.
+
+```
+usage: crispin [-h] [-v] [-vv] {serve,generate} ...
+
+positional arguments:
+  {serve,generate}  Choose a command: generate or serve.
+    serve           Start the Crispin API server
+    generate        Set options for generating answers, kickstarts, and ISOs.
+
+options:
+  -h, --help        show this help message and exit
+  -v, --verbose     (Optional) Enable verbose logging.
+  -vv, --debug      (Optional) Enable debug logging.
+```
+
+At the moment these options **must** come before the `generate` and `serve` options.
+
+# How it works
 
 Using crispin requires three things: kickstart templates, a recipe, and answers. These three things make a **cookbook**.
 
 > **High level overview:** Crispin takes a JSON file that lists directories and files within in order, concatenates them to create a valid kickstart, and finally takes an answer file to fill in variables in the concatenated template.
 
 
-### Cookbooks
+## Cookbooks
 
 A set of answers, recipes, and templates can be considered a **cookbook**. Each cookbook should be self contained and not reference other cookbooks.
 
@@ -79,7 +113,7 @@ A set of answers, recipes, and templates can be considered a **cookbook**. Each 
 │       │   ├── part3.ks
 ```
 
-### Recipes
+## Recipes
 
 Recipes are a JSON file. The recipe reflects the folder structure of the `template-dir`. The files in the directories are Jinja2 templates. **These files are concatinated in the order that they are listed.**
 
@@ -97,7 +131,7 @@ Recipes are a JSON file. The recipe reflects the folder structure of the `templa
 ```
 [crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) is under active development and contains an example recipe for my own Fedora 38 install.
 
-### Answers File
+## Answers File
 
 The answers file contains the variables to fill in the Jinja2 templates listed in the recipe.
 
@@ -112,7 +146,11 @@ Blank answer files [can be automatically generated](#generate-a-blank-answers-fi
 ```
 
 ## TODO:
+- [ ] Move to f39
+- [ ] Make readme more comprehensible
+- [ ] Break generation of KS and Answers into its own file.
+- [ ] Remove global var ks_logging
 
+### LONG TERM:
 - [ ] Work to generate ISOs
 - [ ] Work to Host ISOs
-- [ ] Create REST API to dynamically generate kickstarts and ISOs
