@@ -250,12 +250,11 @@ def main():
         help="(Optional) Enable debug logging.",
         default=False,
     )
-    
     if len(sys.argv) < 2:
         parser.print_help()
         exit(1)
-    if len(sys.argv) == 2:
-        parser.print_help()
+    if len(sys.argv) == 2 and sys.argv[1] == 'generate':
+        generate_parser.print_help()
         exit(1)
 
     args = parser.parse_args()
