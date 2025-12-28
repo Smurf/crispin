@@ -1,4 +1,6 @@
+import json
 from pathlib import Path
+from urllib.parse import urljoin
 
 def generate_menu(cookbook_dir, hostname):
     """
@@ -25,8 +27,27 @@ def generate_menu(cookbook_dir, hostname):
     for answer_file in answer_files:
         answer_name = answer_file.stem
         menu += f":{answer_name}\n"
-        menu += f"kernel http://{hostname}:9000/vmlinuz inst.ks=http://{hostname}:9000/crispin/get/{answer_name} quiet\n"
-        menu += f"initrd http://{hostname}:9000/initrd.img\n"
+
+        with open(answer_file, "r") as f:
+            try:
+                data = json.load(f)
+                source = data.get("metadata", {}).get("source")
+            except json.JSONDecodeError:
+                source = None
+
+        kernel_url = f"http://{hostname}:9000/vmlinuz"
+        initrd_url = f"http://{hostname}:9000/initrd.img"
+
+        if source:
+            if source.startswith("http://") or source.startswith("https://"):
+                kernel_url = urljoin(source, "vmlinuz")
+                initrd_url = urljoin(source, "initrd.img")
+            else:
+                kernel_url = f"http://{hostname}:9000/{source}/vmlinuz"
+                initrd_url = f"http://{hostname}:9000/{source}/initrd.img"
+
+        menu += f"kernel {kernel_url} inst.ks=http://{hostname}:9000/crispin/get/{answer_name} quiet\n"
+        menu += f"initrd {initrd_url}\n"
         menu += "boot\n"
 
     return menu

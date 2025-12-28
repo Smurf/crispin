@@ -1,9 +1,14 @@
 import json
 import os
+import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from dotenv import load_dotenv
+
+import tftpy
+from dotenv import dotenv_values
+
 from crispin.CrispinAPI import get_kickstart, post_kickstart
 from crispin.CrispinIPXE import generate_menu
+
 
 class CrispinServer(BaseHTTPRequestHandler):
     ipxe_menu = ""
@@ -39,9 +44,14 @@ class CrispinServer(BaseHTTPRequestHandler):
             self.send_header("Content-type", "text/plain")
             self.end_headers()
             self.wfile.write(bytes(self.ipxe_menu, "utf-8"))
-        elif self.path in ["/vmlinuz", "/initrd.img"]:
+        elif self.path.endswith(("/vmlinuz", "/initrd.img")):
+            safe_path = os.path.abspath(os.path.join(self.ipxe_dir, self.path.lstrip('/')))
+            if not safe_path.startswith(os.path.abspath(self.ipxe_dir)):
+                self.send_json_error(403, "Forbidden")
+                return
+
             try:
-                with open(os.path.join(self.ipxe_dir, self.path[1:]), "rb") as f:
+                with open(safe_path, "rb") as f:
                     self.send_response(200)
                     self.send_header("Content-type", "application/octet-stream")
                     self.end_headers()
@@ -71,13 +81,21 @@ class CrispinServer(BaseHTTPRequestHandler):
         else:
             self.send_json_error(404, "Not Found")
 
+
 def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None, ipxe_dir=None):
-    load_dotenv()
-    hostname = os.environ.get("HOSTNAME", "localhost")
+    config = dotenv_values()
+    hostname = config.get("HOSTNAME", "localhost")
+
     if cookbook_dir is None:
         raise ValueError("cookbook_dir must be provided")
     if ipxe_dir is None:
         raise ValueError("ipxe_dir must be provided")
+
+    # Start TFTP server in a separate thread
+    tftp_server = tftpy.TftpServer(ipxe_dir)
+    tftp_thread = threading.Thread(target=tftp_server.listen, args=('0.0.0.0', 6969), daemon=True)
+    tftp_thread.start()
+    print("Starting tftpd on port 6969...")
 
     handler_class.ipxe_menu = generate_menu(cookbook_dir, hostname)
     handler_class.ipxe_dir = ipxe_dir
@@ -89,6 +107,7 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
     httpd = server_class(server_address, handler_wrapper)
     print(f"Starting httpd on port {port}...")
     httpd.serve_forever()
+
 
 if __name__ == "__main__":
     # This is for testing purposes only
