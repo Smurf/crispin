@@ -9,5 +9,5 @@ setup(
     entry_points = {
         'console_scripts': ['crispin = crispin.crispin:main']
     },
-    install_requires = ['Jinja2>=3.1.3','MarkupSafe==2.1.3', 'python-dotenv>=1.0.1', 'tftpy>=0.8.3']
+    install_requires = ['Jinja2>=3.1.3','MarkupSafe==2.1.3', 'python-dotenv>=1.0.1']
 )
