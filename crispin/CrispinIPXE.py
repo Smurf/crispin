@@ -29,8 +29,11 @@ def generate_menu(cookbook_dir, hostname):
         menu += f":{answer_name}\n"
 
         with open(answer_file, "r") as f:
-            data = json.load(f)
-            source = data.get("metadata", {}).get("source")
+            try:
+                data = json.load(f)
+                source = data.get("metadata", {}).get("source")
+            except json.JSONDecodeError:
+                source = None
 
         kernel_url = f"http://{hostname}:9000/vmlinuz"
         initrd_url = f"http://{hostname}:9000/initrd.img"

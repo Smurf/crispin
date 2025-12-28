@@ -93,8 +93,7 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
 
     # Start TFTP server in a separate thread
     tftp_server = tftpy.TftpServer(ipxe_dir)
-    tftp_thread = threading.Thread(target=tftp_server.listen, args=('0.0.0.0', 6969))
-    tftp_thread.daemon = True
+    tftp_thread = threading.Thread(target=tftp_server.listen, args=('0.0.0.0', 6969), daemon=True)
     tftp_thread.start()
     print("Starting tftpd on port 6969...")
 
