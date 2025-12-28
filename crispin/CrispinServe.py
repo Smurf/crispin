@@ -39,7 +39,7 @@ class CrispinServer(BaseHTTPRequestHandler):
             self.send_header("Content-type", "text/plain")
             self.end_headers()
             self.wfile.write(bytes(self.ipxe_menu, "utf-8"))
-        elif self.path.endswith(("/vmlinuz", "/initrd.img")):
+        elif self.path.endswith(("/vmlinuz", "/initrd.img", "/ipxe.efi")):
             safe_path = os.path.abspath(os.path.join(self.ipxe_dir, self.path.lstrip('/')))
             if not safe_path.startswith(os.path.abspath(self.ipxe_dir)):
                 self.send_json_error(403, "Forbidden")
