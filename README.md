@@ -65,7 +65,41 @@ crispin -r fedora/recipes/f38-minimal.json -n f38-my-answers -a my-answers.json
 
 ## Serve
 
-Serve is not implemented yet. This is a v1.0.0 goal.
+The serve command starts an HTTP server that can be used to generate kickstarts on demand.
+
+```
+$ crispin serve -h
+usage: crispin serve [-h] -c COOKBOOK_DIR
+
+options:
+  -h, --help            show this help message and exit
+  -c COOKBOOK_DIR, --cookbook-dir COOKBOOK_DIR
+                        The path to the cookbook directory.
+```
+
+### API
+
+The server exposes a simple API for generating kickstarts.
+
+#### GET /crispin/get/<answer_name>
+
+This endpoint generates a kickstart using a pre-existing answers file from the cookbook. The `answer_name` in the URL should correspond to the name of an answers file (without the `.json` extension) in the `answers` directory of the cookbook.
+
+Example:
+
+```
+curl http://localhost:9000/crispin/get/minimal-desktop-example
+```
+
+#### POST /crispin/get/<recipe_name>
+
+This endpoint generates a kickstart using the JSON answers provided in the request body. The `recipe_name` in the URL should correspond to the name of a recipe file (without the `.json` extension) in the `recipes` directory of the cookbook.
+
+Example:
+
+```
+curl -X POST -d '{"hostname": "my-new-host"}' http://localhost:9000/crispin/get/minimal-desktop
+```
 
 ## Debu
 
