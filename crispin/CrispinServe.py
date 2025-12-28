@@ -1,10 +1,18 @@
 import json
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from dotenv import load_dotenv
 from crispin.CrispinAPI import get_kickstart, post_kickstart
+from crispin.CrispinIPXE import generate_menu
 
 class CrispinServer(BaseHTTPRequestHandler):
-    def __init__(self, *args, cookbook_dir=None, **kwargs):
+    ipxe_menu = ""
+    ipxe_dir = ""
+
+    def __init__(self, *args, cookbook_dir=None, hostname=None, ipxe_dir=None, **kwargs):
         self.cookbook_dir = cookbook_dir
+        self.hostname = hostname
+        self.ipxe_dir = ipxe_dir
         super().__init__(*args, **kwargs)
 
     def send_json_error(self, code, message):
@@ -26,6 +34,20 @@ class CrispinServer(BaseHTTPRequestHandler):
                 self.send_json_error(404, str(e))
             except Exception as e:
                 self.send_json_error(500, str(e))
+        elif self.path == "/ipxe/":
+            self.send_response(200)
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+            self.wfile.write(bytes(self.ipxe_menu, "utf-8"))
+        elif self.path in ["/vmlinuz", "/initrd.img"]:
+            try:
+                with open(os.path.join(self.ipxe_dir, self.path[1:]), "rb") as f:
+                    self.send_response(200)
+                    self.send_header("Content-type", "application/octet-stream")
+                    self.end_headers()
+                    self.wfile.write(f.read())
+            except FileNotFoundError:
+                self.send_json_error(404, "File not found")
         else:
             self.send_json_error(404, "Not Found")
 
@@ -49,12 +71,19 @@ class CrispinServer(BaseHTTPRequestHandler):
         else:
             self.send_json_error(404, "Not Found")
 
-def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None):
+def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None, ipxe_dir=None):
+    load_dotenv()
+    hostname = os.environ.get("HOSTNAME", "localhost")
     if cookbook_dir is None:
         raise ValueError("cookbook_dir must be provided")
+    if ipxe_dir is None:
+        raise ValueError("ipxe_dir must be provided")
+
+    handler_class.ipxe_menu = generate_menu(cookbook_dir, hostname)
+    handler_class.ipxe_dir = ipxe_dir
 
     def handler_wrapper(*args, **kwargs):
-        return handler_class(*args, cookbook_dir=cookbook_dir, **kwargs)
+        return handler_class(*args, cookbook_dir=cookbook_dir, hostname=hostname, ipxe_dir=ipxe_dir, **kwargs)
 
     server_address = ('', port)
     httpd = server_class(server_address, handler_wrapper)

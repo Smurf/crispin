@@ -69,12 +69,15 @@ The serve command starts an HTTP server that can be used to generate kickstarts 
 
 ```
 $ crispin serve -h
-usage: crispin serve [-h] -c COOKBOOK_DIR
+usage: crispin serve [-h] -c COOKBOOK_DIR -i IPXE_DIR
 
 options:
   -h, --help            show this help message and exit
   -c COOKBOOK_DIR, --cookbook-dir COOKBOOK_DIR
                         The path to the cookbook directory.
+  -i IPXE_DIR, --ipxe-dir IPXE_DIR
+                        The path to the directory containing vmlinuz and
+                        initrd.img.
 ```
 
 ### API
@@ -99,6 +102,17 @@ Example:
 
 ```
 curl -X POST -d '{"hostname": "my-new-host"}' http://localhost:9000/crispin/get/minimal-desktop
+```
+
+#### GET /ipxe/
+
+This endpoint serves an iPXE menu that can be used to boot and install a system using one of the kickstarts from the cookbook. The menu is generated at server startup based on the answer files in the cookbook.
+
+Example:
+
+```
+# in your iPXE script
+chain http://your-crispin-server:9000/ipxe/
 ```
 
 ## Debu

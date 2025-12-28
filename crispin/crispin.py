@@ -36,6 +36,13 @@ def main():
         help="The path to the cookbook directory.",
         required=True,
     )
+    serve_parser.add_argument(
+        "-i",
+        "--ipxe-dir",
+        type=str,
+        help="The path to the directory containing vmlinuz and initrd.img.",
+        required=True,
+    )
 
     generate_parser = subparser.add_parser(
         "generate", help="Set options for generating answers, kickstarts, and ISOs."
@@ -112,7 +119,7 @@ def main():
 
     if args.command == 'serve':
         from crispin.CrispinServe import run
-        run(cookbook_dir=args.cookbook_dir)
+        run(cookbook_dir=args.cookbook_dir, ipxe_dir=args.ipxe_dir)
         sys.exit(0)
 
     match args.verbose:
