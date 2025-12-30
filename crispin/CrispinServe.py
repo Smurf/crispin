@@ -1,6 +1,8 @@
 import json
 import os
 import threading
+import time
+import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import tftpy
@@ -81,6 +83,42 @@ class CrispinServer(BaseHTTPRequestHandler):
         else:
             self.send_json_error(404, "Not Found")
 
+def start_standalone_tftp(root_dir, port=6969):
+    # Ensure root_dir is absolute
+    root_dir = os.path.abspath(root_dir)
+    
+    # We use 'in.tftpd' which is the standard Linux TFTP server daemon.
+    # --listen: Run as a standalone daemon (not via inetd)
+    # --address: Bind to all IPs on your custom port
+    # --secure: Changes the root to the specified directory for safety
+    cmd = [
+        "in.tftpd",
+        "--listen",
+        "--address", f"0.0.0.0:{port}",
+        "--secure",
+        "--user", "tftp",
+        root_dir
+    ]
+
+    print(f"[*] Launching TFTP on port {port}...")
+    print(f"[*] Serving files from: {root_dir}")
+
+    try:
+        # Start the process. We don't need sudo because the port is > 1024
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        # Check if it died immediately (e.g., binary not found)
+        time.sleep(1)
+        # Need to poll the proc to get the return code
+        proc.poll()
+        if proc.returncode != 0:
+            print(proc.__dict__)
+            stderr = proc.stderr.read().decode()
+            print(f"[!] Server failed to start: {stderr}. Exit Code: {proc.returncode}")
+        else:
+            proc.wait()
+    except FileNotFoundError:
+        print("[!] Error: 'in.tftpd' not found. Install it with 'sudo apt install tftpd-hpa'")
 
 def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None, ipxe_dir=None):
     config = dotenv_values()
@@ -90,13 +128,11 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
         raise ValueError("cookbook_dir must be provided")
     if ipxe_dir is None:
         raise ValueError("ipxe_dir must be provided")
-
+    
     # Start TFTP server in a separate thread
-    tftp_server = tftpy.TftpServer(ipxe_dir)
-    tftp_thread = threading.Thread(target=tftp_server.listen, args=('0.0.0.0', 6969), daemon=True)
+    print("Starting in.tftpd on port 6969...")
+    tftp_thread = threading.Thread(target=start_standalone_tftp, args=(ipxe_dir, 6969), daemon=True)
     tftp_thread.start()
-    print("Starting tftpd on port 6969...")
-
     handler_class.ipxe_menu = generate_menu(cookbook_dir, hostname)
     handler_class.ipxe_dir = ipxe_dir
 
