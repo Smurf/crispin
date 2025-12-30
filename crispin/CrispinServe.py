@@ -5,7 +5,6 @@ import time
 import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-import tftpy
 from dotenv import dotenv_values
 
 from crispin.CrispinAPI import get_kickstart, post_kickstart
@@ -91,6 +90,9 @@ def start_standalone_tftp(root_dir, port=6969):
     # --listen: Run as a standalone daemon (not via inetd)
     # --address: Bind to all IPs on your custom port
     # --secure: Changes the root to the specified directory for safety
+    # --user: Changes the user to tftp user for security.
+    # NOTE: User option requires binary capabilities
+    # setcap 'cap_setuid,cap_setgid,cap_sys_chroot+ep' /usr/sbin/in.tftpd
     cmd = [
         "in.tftpd",
         "--listen",
