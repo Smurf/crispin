@@ -40,7 +40,7 @@ class CrispinServer(BaseHTTPRequestHandler):
                 self.send_json_error(404, str(e))
             except Exception as e:
                 self.send_json_error(500, str(e))
-        elif self.path == "/ipxe/":
+        elif self.path == "/autoexec.ipxe":
             self.send_response(200)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
@@ -123,7 +123,7 @@ def start_standalone_tftp(root_dir, port=6969):
         print("[!] Error: 'in.tftpd' not found. Install it with 'sudo apt install tftpd-hpa'")
 
 def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None, ipxe_dir=None):
-    config = dotenv_values()
+    config = dotenv_values(".env")
     hostname = config.get("HOSTNAME", "localhost")
 
     if cookbook_dir is None:
