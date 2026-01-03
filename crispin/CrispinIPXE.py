@@ -17,15 +17,6 @@ class MenuEntry:
         entry += f"{cmd}\n\n"
         return entry
 
-    def __str__(self):
-        menu = ""
-        menu += f"item {self.name} {self.name}\n\n"
-
-        menu += f":{self.name}\n"
-        menu += f"{self.bootcmd}\n\n"
-
-        return menu
-
 class IPXEMenu:
 
     def __init__(self, menu_entries:list[MenuEntry]):
@@ -98,8 +89,10 @@ def generate_menu(cookbook_dir, hostname):
 
                     menu_entry = MenuEntry(answer_name, bootcmd)
                     menu_entries.append(menu_entry)
+
                 case uri if source.endswith(".iso"):
                     logging.debug(f"Found URI for {answer_file} that is an ISO file: {uri}.")
+
                 case uri if source.endswith("/") and Path(source).exists():
                     logging.debug(f"Found URI for {answer_file} that appears to be a crispin hosted file: {uri}.")
                     kernel_url = f"http://{hostname}:9000/{source}/vmlinuz"
@@ -116,5 +109,6 @@ def generate_menu(cookbook_dir, hostname):
                 case _:
                     logging.warning(f"Source in metadata could not be parsed! Skipping {answer_file}!")
                     continue
+
     menu = IPXEMenu(menu_entries)
     return str(menu)
