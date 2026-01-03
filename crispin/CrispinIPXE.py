@@ -41,13 +41,14 @@ def generate_menu(cookbook_dir, hostname):
 
         if source:
             if source.startswith("http://") or source.startswith("https://"):
-                kernel_url = urljoin(source, "vmlinuz")
-                initrd_url = urljoin(source, "initrd.img")
+                kernel_url = urljoin(source, "images/pxeboot/vmlinuz")
+                initrd_url = urljoin(source, "images/pxeboot/initrd.img")
             else:
                 kernel_url = f"http://{hostname}:9000/{source}/vmlinuz"
                 initrd_url = f"http://{hostname}:9000/{source}/initrd.img"
 
-        menu += f"kernel {kernel_url} inst.ks=http://{hostname}:9000/crispin/get/{answer_name} quiet\n"
+        stage2_url = urljoin(source, "images/install.img")
+        menu += f"kernel {kernel_url} inst.ks=http://{hostname}:9000/crispin/get/{answer_name} inst.repo={source} inst.stage2={stage2_url} ip=dhcp quiet\n"
         menu += f"initrd {initrd_url}\n"
         menu += "boot\n"
 

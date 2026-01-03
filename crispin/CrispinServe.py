@@ -6,20 +6,22 @@ import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from dotenv import dotenv_values
-
 from crispin.CrispinAPI import get_kickstart, post_kickstart
 from crispin.CrispinIPXE import generate_menu
 
 
 class CrispinServer(BaseHTTPRequestHandler):
-    ipxe_menu = ""
-    ipxe_dir = ""
 
     def __init__(self, *args, cookbook_dir=None, hostname=None, ipxe_dir=None, **kwargs):
         self.cookbook_dir = cookbook_dir
         self.hostname = hostname
         self.ipxe_dir = ipxe_dir
+        self.ipxe_menu = generate_menu(cookbook_dir, hostname)
         super().__init__(*args, **kwargs)
+
+        # Generate autoexec.ipxe menu
+        with open(f"{ipxe_dir}/autoexec.ipxe", "w") as f:
+            f.write(self.ipxe_menu)
 
     def send_json_error(self, code, message):
         self.send_response(code)
@@ -130,13 +132,10 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
         raise ValueError("cookbook_dir must be provided")
     if ipxe_dir is None:
         raise ValueError("ipxe_dir must be provided")
-    
     # Start TFTP server in a separate thread
     print("Starting in.tftpd on port 6969...")
     tftp_thread = threading.Thread(target=start_standalone_tftp, args=(ipxe_dir, 6969), daemon=True)
     tftp_thread.start()
-    handler_class.ipxe_menu = generate_menu(cookbook_dir, hostname)
-    handler_class.ipxe_dir = ipxe_dir
 
     def handler_wrapper(*args, **kwargs):
         return handler_class(*args, cookbook_dir=cookbook_dir, hostname=hostname, ipxe_dir=ipxe_dir, **kwargs)
