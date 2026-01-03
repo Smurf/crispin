@@ -11,6 +11,7 @@ def generate_menu(cookbook_dir, hostname):
         return "#!ipxe\necho No answer files found\nshell"
 
     menu = "#!ipxe\n\n"
+    menu += "dhcp\n\n"
     menu += "menu Crispin iPXE Boot Menu\n\n"
 
     answer_files = sorted(list(answers_dir.glob("*.json")))
