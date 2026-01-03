@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from dotenv import dotenv_values
 from crispin.CrispinAPI import get_kickstart, post_kickstart
 from crispin.CrispinIPXE import generate_menu
-
+from crispin._util import logger
 
 class CrispinServer(BaseHTTPRequestHandler):
 
@@ -124,10 +124,10 @@ def start_standalone_tftp(root_dir, port=6969):
     except FileNotFoundError:
         print("[!] Error: 'in.tftpd' not found. Install it with 'sudo apt install tftpd-hpa'")
 
-def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None, ipxe_dir=None):
+def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None, ipxe_dir=None ):
+
     config = dotenv_values(".env")
     hostname = config.get("HOSTNAME", "localhost")
-
     if cookbook_dir is None:
         raise ValueError("cookbook_dir must be provided")
     if ipxe_dir is None:
