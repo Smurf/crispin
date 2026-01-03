@@ -16,7 +16,7 @@ def get_kickstart(answer_name, cookbook_dir):
     with open(answer_file, "r") as f:
         answers = json.load(f)
 
-    recipe_name = answers.get("recipe")
+    recipe_name = answers.get("metadata").get("recipe")
     if not recipe_name:
         raise ValueError("Recipe not specified in answers file")
 
