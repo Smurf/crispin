@@ -104,18 +104,8 @@ Example:
 curl -X POST -d '{"hostname": "my-new-host"}' http://localhost:9000/crispin/get/minimal-desktop
 ```
 
-#### GET /ipxe/
 
-This endpoint serves an iPXE menu that can be used to boot and install a system using one of the kickstarts from the cookbook. The menu is generated at server startup based on the answer files in the cookbook.
-
-Example:
-
-```
-# in your iPXE script
-chain http://your-crispin-server:9000/ipxe/
-```
-
-## Debu
+## Debug Mode
 
 Crispin has a verbose and debug mode.
 
@@ -177,7 +167,7 @@ Recipes are a JSON file. The recipe reflects the folder structure of the `templa
     }    
 }
 ```
-[crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) is under active development and contains an example recipe for my own Fedora 38 install.
+[crispin-cookbooks](https://github.com/Smurf/crispin-cookbooks) is under active development and contains an example recipe for my own Fedora 43 install.
 
 ## Answers File
 
@@ -194,7 +184,7 @@ Blank answer files [can be automatically generated](#generate-a-blank-answers-fi
 ```
 
 ## TODO:
-- [ ] Move to f39
+- [X] Move to f43
 - [ ] Make readme more comprehensible
 - [ ] Break generation of KS and Answers into its own file.
 - [ ] Remove global var ks_logging
