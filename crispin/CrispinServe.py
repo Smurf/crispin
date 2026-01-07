@@ -101,8 +101,8 @@ def start_standalone_tftp(root_dir, port=6969):
         root_dir
     ]
 
-    print(f"[*] Launching TFTP on port {port}...")
-    print(f"[*] Serving files from: {root_dir}")
+    logger.info(f"[*] Launching TFTP on port {port}...")
+    logger.info(f"[*] Serving files from: {root_dir}")
 
     try:
         # Start the process. We don't need sudo because the port is > 1024
@@ -115,11 +115,11 @@ def start_standalone_tftp(root_dir, port=6969):
         if proc.returncode != 0:
             print(proc.__dict__)
             stderr = proc.stderr.read().decode()
-            print(f"[!] Server failed to start: {stderr}. Exit Code: {proc.returncode}")
+            logger.error(f"[!] Server failed to start: {stderr}. Exit Code: {proc.returncode}")
         else:
             proc.wait()
     except FileNotFoundError:
-        print("[!] Error: 'in.tftpd' not found. Install it with 'sudo apt install tftpd-hpa'")
+        logger.error("[!] Error: 'in.tftpd' not found. Install it with 'sudo apt install tftpd-hpa'")
 
 def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookbook_dir=None, ipxe_dir=None ):
 
@@ -131,13 +131,15 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
         raise ValueError("ipxe_dir must be provided")
 
     # Generate autoexec.ipxe menu
+    ipxe_menu = generate_menu(cookbook_dir, hostname)
     logger.info("Generating autoexec.ipxe...")
     with open(f"{ipxe_dir}/autoexec.ipxe", "w") as f:
-        f.write(generate_menu(cookbook_dir, hostname))
+        f.write(ipxe_menu)
+
     os.chmod(f"{ipxe_dir}/autoexec.ipxe", 0o777) #Octal bby
 
     # Start TFTP server in a separate thread
-    print("Starting in.tftpd on port 6969...")
+    logger.info("Starting in.tftpd on port 6969.")
     tftp_thread = threading.Thread(target=start_standalone_tftp, args=(ipxe_dir, 6969), daemon=True)
     tftp_thread.start()
     def handler_wrapper(*args, **kwargs):
@@ -145,9 +147,8 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
 
     server_address = ('', port)
     httpd = server_class(server_address, handler_wrapper)
-    print(f"Starting httpd on port {port}...")
+    logger.info(f"Starting httpd on port {port}...")
     httpd.serve_forever()
-    
 
 if __name__ == "__main__":
     # This is for testing purposes only
