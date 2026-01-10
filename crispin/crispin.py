@@ -8,18 +8,7 @@ from crispin.CrispinGenerate import (
     write_file,
     generate_kickstart,
 )
-
-
-def set_log_level(logging_level):
-    # For some reason setting the level in basicConfig fails?
-    logging.getLogger(__name__).level = logging_level
-
-    logging.basicConfig(
-        level=logging_level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(stream=sys.stdout)],
-    )
-
+from crispin._util import logger, set_log_level
 
 def main():
     base_path = Path().cwd()
@@ -117,11 +106,6 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == 'serve':
-        from crispin.CrispinServe import run
-        run(cookbook_dir=args.cookbook_dir, ipxe_dir=args.ipxe_dir)
-        sys.exit(0)
-
     match args.verbose:
         case True:
             set_log_level(logging.INFO)
@@ -132,8 +116,11 @@ def main():
         case True:
             set_log_level(logging.DEBUG)
     
-    logger = logging.getLogger(__name__)
 
+    if args.command == 'serve':
+        from crispin.CrispinServe import run
+        run(cookbook_dir=args.cookbook_dir, ipxe_dir=args.ipxe_dir)
+        sys.exit(0)
     match args.template_dir:
         case None:
             template_path = Path(args.recipe).parents[1] / "templates"

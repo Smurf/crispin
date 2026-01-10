@@ -1,8 +1,8 @@
-import json, logging, sys
+import json
 from pathlib import Path
 from jinja2 import Environment, Undefined
 from typing import Dict
-
+from ._util import logger
 # https://stackoverflow.com/a/77311286
 def create_collector():
     collected_variables = set()
@@ -33,7 +33,6 @@ def find_all_vars(template_content):
 
 
 def read_template(infile):
-    logger = logging.getLogger(__name__)
 
     try:
         logger.info(f"Reading template {infile}")
