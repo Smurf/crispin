@@ -32,11 +32,13 @@ class IPXEMenu:
         menu = self.menu
         # Create items first!
         for entry in self.menu_entries:
+            logger.debug(f"Creating ipxe item {entry.item}")
             menu += entry.item
         
         menu += f"\nchoose --default {self.menu_entries[0].name} --timeout 60000 target && goto ${{target}}\n\n"
 
         for entry in self.menu_entries:
+            logger.debug(f"Bootcmd for {entry.name}: {entry.bootcmd}")
             menu += entry.bootcmd
         
         return menu
@@ -60,11 +62,7 @@ def generate_menu(cookbook_dir, hostname):
 
     for answer_file in answer_files:
         answer_name = answer_file.stem
-        logger.debug(f"Set default entry {answer_name}.")
-
-    for answer_file in answer_files:
-        answer_name = answer_file.stem
-        logger.debug(f"Creating menu entry for {answer_name}.")
+        logger.debug(f"Found answer {answer_name}. Creating menu entry...")
         with open(answer_file, "r") as f:
             try:
                 data = json.load(f)

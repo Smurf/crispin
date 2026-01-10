@@ -12,11 +12,11 @@ from crispin._util import logger
 
 class CrispinServer(BaseHTTPRequestHandler):
 
-    def __init__(self, *args, cookbook_dir=None, hostname=None, ipxe_dir=None, **kwargs):
+    def __init__(self, *args, cookbook_dir=None, hostname=None, ipxe_dir=None, ipxe_menu=None, **kwargs):
         self.cookbook_dir = cookbook_dir
         self.hostname = hostname
         self.ipxe_dir = ipxe_dir
-        self.ipxe_menu = generate_menu(cookbook_dir, hostname)
+        self.ipxe_menu = ipxe_menu or generate_menu(cookbook_dir, hostname)
         super().__init__(*args, **kwargs)
 
         
@@ -143,7 +143,7 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
     tftp_thread = threading.Thread(target=start_standalone_tftp, args=(ipxe_dir, 6969), daemon=True)
     tftp_thread.start()
     def handler_wrapper(*args, **kwargs):
-        return handler_class(*args, cookbook_dir=cookbook_dir, hostname=hostname, ipxe_dir=ipxe_dir, **kwargs)
+        return handler_class(*args, cookbook_dir=cookbook_dir, hostname=hostname, ipxe_dir=ipxe_dir, ipxe_menu=ipxe_menu **kwargs)
 
     server_address = ('', port)
     httpd = server_class(server_address, handler_wrapper)
