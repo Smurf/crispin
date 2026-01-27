@@ -34,7 +34,7 @@ def find_all_vars(template_content):
     return vars
 
 
-def read_template(infile):
+def read_template(infile:str):
     logger = logging.getLogger(__name__)
 
     try:
@@ -52,7 +52,6 @@ def read_template(infile):
     except Exception as e:
         logger.error(f"!!! {e}")
         exit(1)
-
 
 def write_file(file_data: str, output_path: str, file_name: str):
     logger = logging.getLogger(__name__)
@@ -128,18 +127,38 @@ def generate_template(recipe, template_path):
 
     return master_template
 
+def dict_to_dot(d, parent_key=''):
+    """
+    This function takes a dict and converts it into a dot notation like jinja2 uses.
+    This function **ONLY** returns keys, no values.
+    """
+    items = []
+    sep = '.'
+    for k, v in d.items():
+        # Current key we're iterating through
+        if parent_key:
+            c_key = f"{parent_key}{sep}{k}"
+        else:
+            c_key = k
+        # Recurse if current value is a dict
+        if isinstance(v, dict):
+            items.append(c_key)
+            items.extend(dict_to_dot(v, c_key))
+        else:
+            items.append(c_key)
+    return items
 
 def check_answers(generated:Dict[str,str], supplied:Dict[str,str]):
     
     missing = []
+    supplied = dict_to_dot(supplied)
     for g_ans in generated:
         if(g_ans not in supplied):
             missing.append(g_ans)
-        
     if len(missing) > 0:
         raise ValueError(f"Answers file is missing values for: {missing}.")
 
-def generate_kickstart(generated_template: str, answers_file: str):
+def generate_kickstart(generated_template: str, answers_file: str)->str:
     logger = logging.getLogger(__name__)
     env = Environment()
 
@@ -276,7 +295,7 @@ def main():
     match args.debug:
         case True:
             set_log_level(logging.DEBUG)
-    
+
     match args.logging:
         case True:
             ks_logging = True
@@ -307,6 +326,6 @@ def main():
             logger.info(f"Wrote the kickstart for recipe {args.recipe} to {abs_path}.")
             print(f"Wrote the kickstart for recipe {args.recipe} to {abs_path}.")
 
-
+logging.addLevelName(1, "Somename")
 if __name__ == "__main__":
     main()
