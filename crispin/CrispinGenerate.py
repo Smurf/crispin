@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from jinja2 import Environment, Undefined
 from typing import Dict
-from ._util import logger
+from ._util import logger, dict_to_dot, dot_to_dict
 # https://stackoverflow.com/a/77311286
 def create_collector():
     collected_variables = set()
@@ -22,7 +22,6 @@ def create_collector():
             return CollectUndefined(name, parent=self)
 
     return collected_variables, CollectUndefined
-
 
 def find_all_vars(template_content):
     vars, undefined_cls = create_collector()
@@ -118,26 +117,6 @@ def generate_template(recipe, template_path, ks_logging: bool = False):
 
     return master_template
 
-def dict_to_dot(d, parent_key=''):
-    """
-    This function takes a dict and converts it into a dot notation like jinja2 uses.
-    This function **ONLY** returns keys, no values.
-    """
-    items = []
-    sep = '.'
-    for k, v in d.items():
-        # Current key we're iterating through
-        if parent_key:
-            c_key = f"{parent_key}{sep}{k}"
-        else:
-            c_key = k
-        # Recurse if current value is a dict
-        if isinstance(v, dict):
-            items.append(c_key)
-            items.extend(dict_to_dot(v, c_key))
-        else:
-            items.append(c_key)
-    return items
 
 def check_answers(generated:Dict[str,str], supplied:Dict[str,str]):
     
@@ -185,11 +164,8 @@ def generate_kickstart_from_answers_dict(generated_template: str, answers: dict)
         logger.error(f"{e=}")
         return None, e
 
-
 def generate_empty_answers(generated_template: str):
     set_vars = find_all_vars(generated_template)
-    ret_dict = {}
-    for var in set_vars:
-        ret_dict[var] = ""
+    ret_dict = dot_to_dict(list(set_vars))
 
     return json.dumps(ret_dict, indent=2)
