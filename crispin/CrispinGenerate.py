@@ -120,14 +120,34 @@ def generate_template(recipe, template_path, ks_logging: bool = False):
 
     return master_template
 
+def dict_to_dot(d, parent_key=''):
+    """
+    This function takes a dict and converts it into a dot notation like jinja2 uses.
+    This function **ONLY** returns keys, no values.
+    """
+    items = []
+    sep = '.'
+    for k, v in d.items():
+        # Current key we're iterating through
+        if parent_key:
+            c_key = f"{parent_key}{sep}{k}"
+        else:
+            c_key = k
+        # Recurse if current value is a dict
+        if isinstance(v, dict):
+            items.append(c_key)
+            items.extend(dict_to_dot(v, c_key))
+        else:
+            items.append(c_key)
+    return items
 
 def check_answers(generated:Dict[str,str], supplied:Dict[str,str]):
-
+    
     missing = []
+    supplied = dict_to_dot(supplied)
     for g_ans in generated:
         if(g_ans not in supplied):
             missing.append(g_ans)
-
     if len(missing) > 0:
         raise ValueError(f"Answers file is missing values for: {missing}.")
 
