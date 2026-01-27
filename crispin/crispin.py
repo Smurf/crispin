@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse, logging, sys
+import traceback
 from pathlib import Path
 from crispin.CrispinGenerate import (
     generate_template,
@@ -148,6 +149,7 @@ def main():
                 print(f"Wrote the kickstart for recipe {args.recipe} to {abs_path}.")
     except Exception as e:
         logger.error(f"!!! {e}")
+        traceback.print_exc()
         sys.exit(1)
 
 
