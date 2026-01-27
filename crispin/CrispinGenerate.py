@@ -52,7 +52,6 @@ def read_template(infile):
 
 
 def write_file(file_data: str, output_path: str, file_name: str):
-    logger = logging.getLogger(__name__)
     write_path = Path(output_path)
     try:
         # Create the output directory if it doesn't exist
@@ -75,7 +74,6 @@ def write_file(file_data: str, output_path: str, file_name: str):
 
 
 def generate_template(recipe, template_path, ks_logging: bool = False):
-    logger = logging.getLogger(__name__)
 
     try:
         with open(recipe, "r") as fh:
@@ -152,7 +150,6 @@ def check_answers(generated:Dict[str,str], supplied:Dict[str,str]):
         raise ValueError(f"Answers file is missing values for: {missing}.")
 
 def generate_kickstart(generated_template: str, answers_file: str):
-    logger = logging.getLogger(__name__)
     env = Environment()
 
     ks_template = env.from_string(generated_template)
@@ -171,7 +168,6 @@ def generate_kickstart(generated_template: str, answers_file: str):
 
 
 def generate_kickstart_from_answers_dict(generated_template: str, answers: dict):
-    logger = logging.getLogger(__name__)
     env = Environment()
 
     ks_template = env.from_string(generated_template)
