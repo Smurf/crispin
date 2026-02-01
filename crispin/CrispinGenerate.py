@@ -122,7 +122,7 @@ def check_answers(generated:Dict[str,str], supplied:Dict[str,str]):
     
     missing = []
     supplied = dict_to_dot(supplied)
-    for g_ans in generated:
+    for g_ans in dict_to_dot(generated):
         if(g_ans not in supplied):
             missing.append(g_ans)
     if len(missing) > 0:

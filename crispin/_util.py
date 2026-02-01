@@ -53,6 +53,6 @@ def dot_to_dict(d_list, parent={}):
 
         # keys[-1] == the final value after the last ., set this to empty
         # BUT only if the key does not already exist in our current dict!
-        if keys[-1] not in c_res:
+        if keys[-1] not in c_res and isinstance(c_res, dict):
             c_res[keys[-1]] = ""
     return res
