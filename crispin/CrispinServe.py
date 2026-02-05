@@ -143,7 +143,7 @@ def run(server_class=HTTPServer, handler_class=CrispinServer, port=9000, cookboo
     tftp_thread = threading.Thread(target=start_standalone_tftp, args=(ipxe_dir, 6969), daemon=True)
     tftp_thread.start()
     def handler_wrapper(*args, **kwargs):
-        return handler_class(*args, cookbook_dir=cookbook_dir, hostname=hostname, ipxe_dir=ipxe_dir, ipxe_menu=ipxe_menu **kwargs)
+        return handler_class(*args, cookbook_dir=cookbook_dir, hostname=hostname, ipxe_dir=ipxe_dir, ipxe_menu=ipxe_menu, **kwargs)
 
     server_address = ('', port)
     httpd = server_class(server_address, handler_wrapper)
